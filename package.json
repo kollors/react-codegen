@@ -3,7 +3,7 @@
   "version": "1.0.9",
   "main": "src/index.ts",
   "bin": {
-    "kollors-react-codegen": "ts-node src/index.ts"
+    "kollors-react-codegen": "node --loader ts-node/esm src/index.ts"
   },
   "dependencies": {
     "@graphql-codegen/add": "^5.0.3",
