@@ -6,7 +6,7 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const tempDir = '.react-codegen-temp';
-const templatesDir = 'templates';
+const templatesDir = join('..', 'templates');
 
 program
   .command('openapi')
