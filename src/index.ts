@@ -9,31 +9,37 @@ const tempDir = '.react-codegen-temp';
 const templatesDir = 'templates';
 
 program
-  .option('-t, --type <type>')
-  .option('-f, --filename <filename>')
-  .option('-s --schema <schema>')
-  .option('-d, --documents <documents>')
+  .command('openapi')
+  .requiredOption('-f, --filename <filename>', 'Output filename')
+  .requiredOption('-s, --schema <schema>', 'Schema URL/path')
   .action((options) => {
-    mkdirSync(tempDir);
+    mkdirSync(tempDir, { recursive: true });
 
-    if (options.type === 'openapi') {
-      const file = readFileSync(join(__dirname, templatesDir, 'openapi.template'), 'utf-8')
-        .replaceAll('%SCHEMA%', options.schema)
-        .replaceAll('%FILENAME%', options.filename);
+    const file = readFileSync(join(__dirname, templatesDir, 'openapi.template'), 'utf-8')
+      .replaceAll('%SCHEMA%', options.schema)
+      .replaceAll('%FILENAME%', options.filename);
 
-      writeFileSync(join(tempDir, 'openapi.codegen.ts'), file, 'utf-8');
-      execSync(`openapi-codegen gen openapi -c ${join(tempDir, 'openapi.codegen.ts')}`);
-    }
+    writeFileSync(join(tempDir, 'openapi.codegen.ts'), file, 'utf-8');
+    execSync(`openapi-codegen gen openapi -c ${join(tempDir, 'openapi.codegen.ts')}`);
 
-    if (options.type === 'graphql') {
-      const file = readFileSync(join(__dirname, templatesDir, 'graphql.template'), 'utf-8')
-        .replaceAll('%DOCUMENTS%', options.documents)
-        .replaceAll('%FILENAME%', options.filename)
-        .replaceAll('%SCHEMA%', options.schema);
+    rmSync(tempDir, { recursive: true });
+  });
 
-      writeFileSync(join(tempDir, 'graphql.codegen.ts'), file, 'utf-8');
-      execSync(`graphql-codegen --config ${join(tempDir, 'graphql.codegen.ts')}`);
-    }
+program
+  .command('graphql')
+  .requiredOption('-f, --filename <filename>', 'Output filename')
+  .requiredOption('-s, --schema <schema>', 'Schema URL/path')
+  .requiredOption('-d, --documents <documents>', 'Documents path')
+  .action((options) => {
+    mkdirSync(tempDir, { recursive: true });
+
+    const file = readFileSync(join(__dirname, templatesDir, 'graphql.template'), 'utf-8')
+      .replaceAll('%DOCUMENTS%', options.documents)
+      .replaceAll('%FILENAME%', options.filename)
+      .replaceAll('%SCHEMA%', options.schema);
+
+    writeFileSync(join(tempDir, 'graphql.codegen.ts'), file, 'utf-8');
+    execSync(`graphql-codegen --config ${join(tempDir, 'graphql.codegen.ts')}`);
 
     rmSync(tempDir, { recursive: true });
   });
