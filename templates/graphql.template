@@ -23,7 +23,7 @@ const config: CodegenConfig = {
         maybeValue: 'T | undefined',
         scalars: { ID: 'number' },
 
-        fetcher: '@kollors/react-codegen/fetcher#graphqlFetcher',
+        fetcher: '@kollors/react-codegen/dist/fetcher#graphqlFetcher',
         legacyMode: false,
         omitOperationSuffix: true,
         reactQueryVersion: 5,

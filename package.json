@@ -1,13 +1,10 @@
 {
   "name": "@kollors/react-codegen",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "main": "dist/index.js",
   "bin": "dist/index.js",
   "scripts": {
     "build": "rm -rf dist && tsc"
-  },
-  "exports": {
-    "fetcher": "./dist/fetcher.js"
   },
   "dependencies": {
     "@graphql-codegen/add": "^5.0.3",
