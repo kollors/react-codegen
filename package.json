@@ -1,12 +1,12 @@
 {
   "name": "@kollors/react-codegen",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "main": "src/index.ts",
   "scripts": {
     "build": "rm -rf dist && tsc"
   },
   "bin": {
-    "openapi": "ts-node src/index.ts -t openapi",
+    "@kollors/react-codegen/openapi": "ts-node src/index.ts -t openapi",
     "graphql": "ts-node src/index.ts -t graphql"
   },
   "dependencies": {
