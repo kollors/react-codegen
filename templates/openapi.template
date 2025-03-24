@@ -22,7 +22,7 @@ const config = defineConfig({
         '// @ts-nocheck',
         '/* eslint-disable */',
         readFileSync(join(tempDir, 'components.ts'), 'utf-8')
-          .replace('import { fetch } from "./fetcher";', 'import { openapiFetcher as fetch } from "@kollors/codegen/fetcher"')
+          .replace('import { fetch } from "./fetcher";', 'import { openapiFetcher as fetch } from "@kollors/react-codegen/fetcher"')
           .replace('import { useContext, Context, queryKeyFn } from "./context";', '')
           .replace('import type * as Schemas from "./schemas";', '')
           .replace('import type * as Fetcher from "./fetcher";', '')
