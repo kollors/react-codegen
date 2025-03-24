@@ -1,0 +1,35 @@
+import { CodegenConfig } from '@graphql-codegen/cli';
+import { writeFileSync } from 'node:fs';
+
+fetch('%SCHEMA%')
+  .then((response) => response.text())
+  .then((data) => writeFileSync('%DOCUMENTS%/schema.graphql', data));
+
+const config: CodegenConfig = {
+  schema: '%DOCUMENTS%/schema.graphql',
+  documents: '%DOCUMENTS%/**/*.graphql',
+  ignoreNoDocuments: true,
+  generates: {
+    '%FILENAME%': {
+      plugins: [
+        'add',
+        'typescript',
+        'typescript-operations',
+        'typescript-react-query',
+      ],
+      config: {
+        content: '/* eslint-disable */',
+
+        maybeValue: 'T | undefined',
+        scalars: { ID: 'number' },
+
+        fetcher: '@kollors/react-codegen/fetcher#graphqlFetcher',
+        legacyMode: false,
+        omitOperationSuffix: true,
+        reactQueryVersion: 5,
+      },
+    },
+  },
+};
+
+export default config;
