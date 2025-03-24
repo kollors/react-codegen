@@ -1,5 +1,5 @@
 {
-  "name": "@kollors/codegen",
+  "name": "@kollors/react-codegen",
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
