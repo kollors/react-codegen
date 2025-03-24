@@ -1,9 +1,9 @@
 {
   "name": "@kollors/react-codegen",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "main": "src/index.ts",
   "bin": {
-    "@kollors/react-codegen": "ts-node src/index.ts"
+    "react-codegen": "ts-node src/index.ts"
   },
   "dependencies": {
     "@graphql-codegen/add": "^5.0.3",
