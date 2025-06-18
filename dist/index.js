@@ -34,7 +34,7 @@ commander_1.program
     (0, node_fs_1.writeFileSync)((0, node_path_1.join)(tempDir, 'graphql.codegen.ts'), file, 'utf-8');
     (0, node_child_process_1.execSync)(`graphql-codegen --config ${(0, node_path_1.join)(tempDir, 'graphql.codegen.ts')}`);
     const completeFile = (0, node_fs_1.readFileSync)(options.filename, 'utf-8')
-        .replace('import { graphqlFetcher } from \'@kollors/react-codegen/dist/graphql-fetcher\';', `${(0, node_fs_1.readFileSync)((0, node_path_1.join)(__dirname, 'graphql-fetcher.js'), 'utf-8')}\n`);
+        .replace('import { graphqlFetcher } from \'@kollors/react-codegen/dist/graphql-fetcher\';', `${(0, node_fs_1.readFileSync)((0, node_path_1.join)(__dirname, '..', 'src', 'graphql-fetcher.ts'), 'utf-8')}\n`);
     (0, node_fs_1.writeFileSync)(options.filename, completeFile, 'utf-8');
     (0, node_fs_1.rmSync)(tempDir, { recursive: true });
 });

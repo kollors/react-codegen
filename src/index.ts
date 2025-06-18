@@ -42,7 +42,7 @@ program
     execSync(`graphql-codegen --config ${join(tempDir, 'graphql.codegen.ts')}`);
 
     const completeFile = readFileSync(options.filename, 'utf-8')
-      .replace('import { graphqlFetcher } from \'@kollors/react-codegen/dist/graphql-fetcher\';', `${readFileSync(join(__dirname, 'graphql-fetcher.js'), 'utf-8')}\n`);
+      .replace('import { graphqlFetcher } from \'@kollors/react-codegen/dist/graphql-fetcher\';', `${readFileSync(join(__dirname, '..', 'src', 'graphql-fetcher.ts'), 'utf-8')}\n`);
 
     writeFileSync(options.filename, completeFile, 'utf-8');
 
