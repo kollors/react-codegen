@@ -10,7 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.graphqlFetcher = graphqlFetcher;
-exports.openapiFetcher = openapiFetcher;
 /**
  * @param {string} query GraphQL строка.
  * @param {object} variables Параметры для запроса.
@@ -38,31 +37,4 @@ function graphqlFetcher(query, variables) {
         }
     });
 }
-function openapiFetcher(options) {
-    return __awaiter(this, void 0, void 0, function* () {
-        var _a, _b, _c, _d, _e;
-        try {
-            const token = (_a = localStorage.getItem('token')) !== null && _a !== void 0 ? _a : '';
-            const headers = Object.assign({ 'authorization': token, 'content-type': 'application/json' }, options.headers);
-            const queryParams = new URLSearchParams((_b = options.queryParams) !== null && _b !== void 0 ? _b : '').toString();
-            const url = (_c = options.url) === null || _c === void 0 ? void 0 : _c.replace(/\{\w*}/g, (key) => { var _a, _b; return (_b = (_a = options.pathParams) === null || _a === void 0 ? void 0 : _a[key.slice(1, -1)]) !== null && _b !== void 0 ? _b : ''; });
-            if (headers['content-type'].toLowerCase().includes('multipart/form-data')) {
-                delete headers['content-type'];
-            }
-            const response = yield fetch(`${url}${queryParams.length > 0 ? `?${queryParams}` : ''}`, {
-                signal: options.signal,
-                method: (_d = options.method) === null || _d === void 0 ? void 0 : _d.toUpperCase(),
-                body: options.body != null ? options.body instanceof FormData ? options.body : JSON.stringify(options.body) : undefined,
-                headers,
-            });
-            const result = ((_e = response.headers.get('content-type')) === null || _e === void 0 ? void 0 : _e.includes('json'))
-                ? yield response.json()
-                : yield response.blob();
-            return response.ok ? result : Promise.reject(result);
-        }
-        catch (error) {
-            throw new Error(error.message);
-        }
-    });
-}
-//# sourceMappingURL=fetcher.js.map
+//# sourceMappingURL=graphql-fetcher.js.map
