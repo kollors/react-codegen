@@ -14,27 +14,25 @@ const config = defineConfig({
       await generateReactQueryComponents(context, { filenamePrefix: '', schemasFiles });
 
       const contextStr = readFileSync(join(tempDir, 'context.ts'), 'utf-8').replace('import { QueryOperation } from "./components";', '');
-      const schemasStr = readFileSync(join(tempDir, 'schemas.ts'), 'utf-8');
-      const fetcherStr = `namespace Fetcher {\n${readFileSync(join(tempDir, 'fetcher.ts'), 'utf-8')}\n}`.replace('import { Context } from "./context";', '');
       const utilsStr = readFileSync(join(tempDir, 'utils.ts'), 'utf-8');
+      const schemasStr = readFileSync(join(tempDir, 'schemas.ts'), 'utf-8');
+      const parametersStr = readFileSync(join(tempDir, 'parameters.ts'), 'utf-8');
+      const openapiFetcherStr = readFileSync('openapi-fetcher.ts', 'utf-8').replace('export ', '');
 
-      const componentsStr = [
-        '// @ts-nocheck',
-        '/* eslint-disable */',
-        readFileSync(join(tempDir, 'components.ts'), 'utf-8')
-          .replace('import { fetch } from "./fetcher";', `${readFileSync(join(__dirname, '..', 'src', 'openapi-fetcher.ts'), 'utf-8')}\n`)
-          .replace('import { useContext, Context, queryKeyFn } from "./context";', '')
-          .replace('import type * as Schemas from "./schemas";', '')
-          .replace('import type * as Fetcher from "./fetcher";', '')
-          .replace('import { deepMerge } from "./utils";', '')
-          .replace(/Schemas\./g, ''),
-        contextStr,
-        schemasStr,
-        fetcherStr,
-        utilsStr,
-      ].join('\n');
+      const componentsStr = readFileSync(join(tempDir, 'components.ts'), 'utf-8')
+        .replace(/import\s+\*\s+as\s+reactQuery\s+from\s+"@tanstack\/react-query";/g, 'import * as reactQuery from "@tanstack/react-query";')
+        .replace(/import\s+\{\s*useContext,\s*Context,\s*queryKeyFn\s*}\s+from\s+"\.\/context";/g, '')
+        .replace(/import\s+\{\s*deepMerge\s*}\s+from\s+"\.\/utils";/g, '')
+        .replace(/import\s+type\s+\*\s+as\s+Schemas\s+from\s+"\.\/schemas";/g, '')
+        .replace(/import\s+type\s+\*\s+as\s+Fetcher\s+from\s+"\.\/fetcher";/g, '')
+        .replace(/import\s+\{\s*fetch\s*}\s+from\s+"\.\/fetcher";/g, '')
+        .replace(/Schemas\./g, '')
+        .replace(/Fetcher\./g, '')
+        .replace(/fetch\s*</g, 'openapiFetcher<');
 
-      writeFileSync('%FILENAME%', componentsStr, 'utf-8');
+      const result = ['// @ts-nocheck', '/* eslint-disable */', parametersStr, schemasStr, openapiFetcherStr, contextStr, utilsStr, componentsStr].join('\n\n');
+
+      writeFileSync('%FILENAME%', result, 'utf-8');
       rmSync(tempDir, { recursive: true });
     },
   },
