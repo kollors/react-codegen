@@ -22,7 +22,7 @@ const config = defineConfig({
         '// @ts-nocheck',
         '/* eslint-disable */',
         readFileSync(join(tempDir, 'components.ts'), 'utf-8')
-          .replace('import { fetch } from "./fetcher";', `${readFileSync('../openapi-fetcher.js', 'utf-8')}\n`)
+          .replace('import { fetch } from "./fetcher";', `${readFileSync(join(__dirname, '..', 'src', 'openapi-fetcher.ts'), 'utf-8')}\n`)
           .replace('import { useContext, Context, queryKeyFn } from "./context";', '')
           .replace('import type * as Schemas from "./schemas";', '')
           .replace('import type * as Fetcher from "./fetcher";', '')
