@@ -1,39 +1,59 @@
 export interface OpenapiFetcherOptions<TBody, THeaders, TQueryParams, TPathParams> {
-  url: string;
-  method: string;
   body?: TBody;
   headers?: THeaders;
-  queryParams?: TQueryParams;
+  method: string;
   pathParams?: TPathParams;
+  queryParams?: TQueryParams;
   signal?: AbortSignal;
+  url: string;
 }
 
-export async function openapiFetcher<TData, TError, TBody, THeaders, TQueryParams, TPathParams>(
-  options: OpenapiFetcherOptions<TBody, THeaders, TQueryParams, TPathParams>,
-): Promise<TData> {
-  try {
-    const token = localStorage.getItem('token') ?? '';
-    const headers: HeadersInit = { 'authorization': token, 'content-type': 'application/json', ...options.headers };
-    const queryParams = new URLSearchParams(options.queryParams ?? '').toString();
-    const url = options.url?.replace(/\{\w*}/g, (key) => options.pathParams?.[key.slice(1, -1)] ?? '');
+export interface OpenapiFetcherConfiguration {
+  getToken?: () => string | null | undefined;
+}
 
-    if (headers['content-type'].toLowerCase().includes('multipart/form-data')) {
-      delete headers['content-type'];
-    }
+function defaultGetToken(): string {
+  return typeof localStorage === 'undefined' ? '' : (localStorage.getItem('token') ?? '');
+}
 
-    const response = await fetch(`${url}${queryParams.length > 0 ? `?${queryParams}` : ''}`, {
-      signal: options.signal,
-      method: options.method?.toUpperCase(),
-      body: options.body != null ? options.body instanceof FormData ? options.body : JSON.stringify(options.body) : undefined,
-      headers,
+export function createOpenapiFetcher(configuration: OpenapiFetcherConfiguration = {}) {
+  const getToken = configuration.getToken ?? defaultGetToken;
+
+  return async function openapiFetcher<TData, TError, TBody, THeaders, TQueryParams, TPathParams>(
+    options: OpenapiFetcherOptions<TBody, THeaders, TQueryParams, TPathParams>,
+  ): Promise<TData> {
+    const headers = new Headers({ authorization: getToken() ?? '', 'content-type': 'application/json' });
+    new Headers(options.headers as HeadersInit | undefined).forEach((value, key) => {
+      headers.set(key, value);
     });
 
-    const result = response.headers.get('content-type')?.includes('json')
-      ? await response.json() as TData
-      : await response.blob() as TData;
+    if (headers.get('content-type')?.toLowerCase().includes('multipart/form-data')) {
+      headers.delete('content-type');
+    }
 
-    return response.ok ? result : Promise.reject(result);
-  } catch (error) {
-    throw new Error(error.message as string) as TError;
-  }
+    const queryParams = new URLSearchParams(options.queryParams as Record<string, string> | undefined).toString();
+    const pathParams = options.pathParams as Record<string, string | number> | undefined;
+    const url = options.url.replace(/\{\w*}/g, (key) => String(pathParams?.[key.slice(1, -1)] ?? ''));
+    const body = options.body instanceof FormData ? options.body : options.body == null ? undefined : JSON.stringify(options.body);
+
+    try {
+      const response = await fetch(`${url}${queryParams ? `?${queryParams}` : ''}`, {
+        body,
+        headers,
+        method: options.method.toUpperCase(),
+        signal: options.signal,
+      });
+      const result = (response.headers.get('content-type')?.includes('json') ? await response.json() : await response.blob()) as TData;
+
+      if (!response.ok) {
+        return Promise.reject(result as unknown as TError);
+      }
+
+      return result;
+    } catch (error) {
+      throw error instanceof Error ? error : new Error(String(error));
+    }
+  };
 }
+
+export const openapiFetcher = createOpenapiFetcher();

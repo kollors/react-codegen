@@ -1,10 +1,43 @@
 {
   "name": "@kollors/react-codegen",
   "version": "1.0.2",
-  "main": "dist/index.js",
-  "bin": "dist/index.js",
+  "description": "Generate TanStack Query clients from OpenAPI and GraphQL schemas",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./graphql-fetcher": {
+      "types": "./dist/graphql-fetcher.d.ts",
+      "import": "./dist/graphql-fetcher.js"
+    },
+    "./openapi-fetcher": {
+      "types": "./dist/openapi-fetcher.d.ts",
+      "import": "./dist/openapi-fetcher.js"
+    }
+  },
+  "bin": {
+    "react-codegen": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "templates",
+    "LICENSE",
+    "README.md",
+    "README.ru.md"
+  ],
   "scripts": {
-    "build": "rm -rf dist && tsc"
+    "build": "node scripts/clean-dist.js && tsc",
+    "lint": "biome check . --error-on-warnings",
+    "lint:fix": "biome check --write .",
+    "pack:check": "npm pack --dry-run",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run verify",
+    "test": "npm run build && node --test",
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run typecheck && npm run lint && npm run test && npm run pack:check"
+  },
+  "engines": {
+    "node": ">=22"
   },
   "dependencies": {
     "@graphql-codegen/add": "^5.0.3",
@@ -15,10 +48,33 @@
     "@openapi-codegen/cli": "^3.1.0",
     "@openapi-codegen/typescript": "^11.0.1",
     "@tanstack/react-query": "^5.81.2",
-    "commander": "^14.0.0",
-    "typescript": "^5.8.3"
+    "commander": "^14.0.0"
   },
   "devDependencies": {
-    "@types/node": "^24.0.4"
+    "@biomejs/biome": "^2.5.12",
+    "@types/node": "^24.0.4",
+    "typescript": "^5.8.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kollors/react-codegen.git"
+  },
+  "homepage": "https://github.com/kollors/react-codegen#readme",
+  "bugs": {
+    "url": "https://github.com/kollors/react-codegen/issues"
+  },
+  "keywords": [
+    "codegen",
+    "graphql",
+    "openapi",
+    "react",
+    "react-query",
+    "tanstack-query",
+    "typescript"
+  ],
+  "author": "kollors",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
   }
 }

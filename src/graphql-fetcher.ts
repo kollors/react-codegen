@@ -1,31 +1,43 @@
-/**
- * @param {string} query GraphQL строка.
- * @param {object} variables Параметры для запроса.
- * @returns {Function} Функция для создания запроса.
- */
-export function graphqlFetcher<TData, TVariables>(query: string, variables?: TVariables): () => Promise<TData> {
-  return async() => {
-    try {
-      const token = localStorage.getItem('token') ?? '';
-      const headers: HeadersInit = { 'authorization': token, 'content-type': 'application/json' };
+export interface GraphqlFetcherConfiguration {
+  endpoint?: string;
+  getToken?: () => string | null | undefined;
+  headers?: HeadersInit;
+}
 
-      const response = await fetch('/api/graphql', {
+function defaultGetToken(): string {
+  return typeof localStorage === 'undefined' ? '' : (localStorage.getItem('token') ?? '');
+}
+
+export function createGraphqlFetcher(configuration: GraphqlFetcherConfiguration = {}) {
+  const endpoint = configuration.endpoint ?? '/api/graphql';
+  const getToken = configuration.getToken ?? defaultGetToken;
+
+  return async function graphqlFetcher<TData, TVariables>(query: string, variables?: TVariables): Promise<TData> {
+    const headers = new Headers({ authorization: getToken() ?? '', 'content-type': 'application/json' });
+    new Headers(configuration.headers).forEach((value, key) => {
+      headers.set(key, value);
+    });
+
+    try {
+      const response = await fetch(endpoint, {
         body: JSON.stringify({ query, variables }),
         headers,
-        method: 'post',
+        method: 'POST',
       });
+      const result = (await response.json()) as { data?: TData; errors?: Array<{ message: string }> };
 
-      const json = await response.json() as { data: TData; errors?: Error[] };
-
-      if (json.errors != null && json.errors.length > 0) {
-        await Promise.reject({ message: json.errors[0].message });
+      if (!response.ok || result.errors?.length) {
+        throw new Error(result.errors?.[0]?.message ?? `GraphQL request failed with status ${response.status}.`);
+      }
+      if (result.data === undefined) {
+        throw new Error('GraphQL response does not contain data.');
       }
 
-      return json.data;
+      return result.data;
     } catch (error) {
-      throw new Error(error.message as string);
+      throw error instanceof Error ? error : new Error(String(error));
     }
   };
 }
 
-
+export const graphqlFetcher = createGraphqlFetcher();

@@ -17,7 +17,7 @@ const config = defineConfig({
       const utilsStr = readFileSync(join(tempDir, 'utils.ts'), 'utf-8');
       const schemasStr = readFileSync(join(tempDir, 'schemas.ts'), 'utf-8');
       const parametersStr = readFileSync(join(tempDir, 'parameters.ts'), 'utf-8');
-      const openapiFetcherStr = readFileSync('openapi-fetcher.ts', 'utf-8').replace('export ', '');
+      const openapiFetcherStr = readFileSync(%FETCHER_PATH%, 'utf-8').replace('export ', '');
 
       const componentsStr = readFileSync(join(tempDir, 'components.ts'), 'utf-8')
         .replace(/import\s+\*\s+as\s+reactQuery\s+from\s+"@tanstack\/react-query";/g, 'import * as reactQuery from "@tanstack/react-query";')
