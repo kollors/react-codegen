@@ -85,7 +85,7 @@ function generateGraphql(filename: string, schema: string, documents: string): v
       throw new Error('Generated GraphQL client does not contain the expected fetcher import.');
     }
 
-    writeFileSync(filename, generatedFile.replace(importLine, `${fetcher}\n`));
+    writeFileSync(filename, `// @ts-nocheck\n/* eslint-disable */\n${generatedFile.replace(importLine, `${fetcher}\n`)}`);
   } finally {
     rmSync(tempDirectory, { force: true, recursive: true });
   }
