@@ -1,0 +1,29 @@
+openapi: 3.0.3
+info:
+  title: Test API
+  version: 1.0.0
+paths:
+  /greeting:
+    get:
+      operationId: getGreeting
+      responses:
+        '200':
+          description: Greeting response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  greeting:
+                    type: string
+                required:
+                  - greeting
+components:
+  schemas:
+    Greeting:
+      type: object
+      properties:
+        greeting:
+          type: string
+      required:
+        - greeting

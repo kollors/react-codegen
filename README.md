@@ -2,49 +2,62 @@
 
 [Русский](README.ru.md)
 
-Generate TypeScript clients and TanStack Query hooks from OpenAPI and GraphQL schemas. The generated file is self-contained: it includes the fetcher used by its hooks.
-
-## Installation
-
-```sh
-npm install -D @kollors/react-codegen
-```
+Generate one self-contained TypeScript client file from an OpenAPI schema, GraphQL schema and operations, or both.
 
 Requires Node.js 22 or newer and TanStack Query 5 in the consuming application.
 
-## OpenAPI
-
-Generate a client from a local schema or an HTTP URL:
+## Install
 
 ```sh
-npx react-codegen openapi \
-  --schema ./openapi.yaml \
-  --filename src/api/generated.ts
+npm install -D @kollors/react-codegen@alpha
 ```
 
-The command supports multipart requests, URL path parameters and query parameters. The generated fetcher sends JSON by default and reads a bearer token from `localStorage.token` when it is available.
+## Configuration
 
-## GraphQL
+Create `codegen.config.js`:
 
-Point the command at a GraphQL endpoint or a local SDL/introspection schema, and at the directory containing `.graphql` operations:
+```js
+export default {
+  openapi: {
+    schema: './openapi.yaml',
+    output: './src/api/openapi.ts',
+  },
+  graphql: {
+    schema: './schema.graphql',
+    documents: './src/graphql',
+    output: './src/api/graphql.ts',
+  },
+};
+```
+
+Run both configured generators with:
 
 ```sh
-npx react-codegen graphql \
-  --schema https://api.example.com/graphql \
-  --documents src/api/documents \
-  --filename src/api/generated.ts
+npx react-codegen codegen.config.js
 ```
 
-The generated GraphQL fetcher uses `/api/graphql` and `localStorage.token` by default. For applications with a different transport, export `createGraphqlFetcher` from a generated module and configure it with an endpoint, headers or a token provider.
+Paths are resolved relative to the config file. A configured `openapi` section enables OpenAPI generation; a configured `graphql` section enables GraphQL generation. Omit a section to skip it. At least one section is required. Each section writes one TypeScript file. `documents` is a directory; all `.graphql` files under it, including nested directories, are included.
 
-## Commands
+Schema values may be local paths or URLs. `output` directories are created when needed.
 
-| Command | Required options | Result |
-| --- | --- | --- |
-| `openapi` | `--schema`, `--filename` | TypeScript types and TanStack Query hooks from an OpenAPI schema |
-| `graphql` | `--schema`, `--documents`, `--filename` | TypeScript types and TanStack Query hooks from GraphQL operations |
+## Programmatic API
 
-Use `npx react-codegen <command> --help` for the complete command reference.
+```ts
+import { generate, type CodegenConfig } from '@kollors/react-codegen';
+
+const config: CodegenConfig = {
+  graphql: {
+    schema: './schema.graphql',
+    documents: './src/graphql',
+    output: './src/api/graphql.ts',
+  },
+};
+
+const result = await generate(config);
+console.log(result.outputs);
+```
+
+Programmatic relative paths resolve from the current working directory. `generate` returns the generated output paths.
 
 ## Development
 
@@ -52,8 +65,6 @@ Use `npx react-codegen <command> --help` for the complete command reference.
 npm ci
 npm run verify
 ```
-
-`verify` runs type checks, formatting and lint checks, tests, and an npm package dry run.
 
 ## License
 

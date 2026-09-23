@@ -1,11 +1,13 @@
 {
   "name": "@kollors/react-codegen",
-  "version": "1.0.2",
+  "version": "2.0.0-alpha.1",
   "description": "Generate TanStack Query clients from OpenAPI and GraphQL schemas",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
     "./graphql-fetcher": {
       "types": "./dist/graphql-fetcher.d.ts",
       "import": "./dist/graphql-fetcher.js"
@@ -16,7 +18,7 @@
     }
   },
   "bin": {
-    "react-codegen": "./dist/index.js"
+    "react-codegen": "./dist/cli.js"
   },
   "files": [
     "dist",
@@ -53,7 +55,7 @@
   "devDependencies": {
     "@biomejs/biome": "^2.5.12",
     "@types/node": "^26.6.2",
-    "typescript": "^7.0.2"
+    "typescript": "^5.7.3"
   },
   "repository": {
     "type": "git",

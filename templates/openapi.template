@@ -1,13 +1,17 @@
 import { defineConfig } from '@openapi-codegen/cli';
 import { generateReactQueryComponents, generateSchemaTypes } from '@openapi-codegen/typescript';
-import { readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const tempDir = join('.react-codegen-temp', 'openapi');
+const tempDir = %OUTPUT_DIR%;
+const readGeneratedFile = (filename) => {
+  const path = join(tempDir, filename);
+  return existsSync(path) ? readFileSync(path, 'utf-8') : '';
+};
 
 const config = defineConfig({
   openapi: {
-    from: { source: 'url', url: '%SCHEMA%' },
+    from: %OPENAPI_SOURCE%,
     outputDir: tempDir,
     to: async(context) => {
       const { schemasFiles } = await generateSchemaTypes(context, { filenamePrefix: '' });
@@ -16,7 +20,7 @@ const config = defineConfig({
       const contextStr = readFileSync(join(tempDir, 'context.ts'), 'utf-8').replace('import { QueryOperation } from "./components";', '');
       const utilsStr = readFileSync(join(tempDir, 'utils.ts'), 'utf-8');
       const schemasStr = readFileSync(join(tempDir, 'schemas.ts'), 'utf-8');
-      const parametersStr = readFileSync(join(tempDir, 'parameters.ts'), 'utf-8');
+      const parametersStr = readGeneratedFile('parameters.ts');
       const openapiFetcherStr = readFileSync(%FETCHER_PATH%, 'utf-8').replace('export ', '');
 
       const componentsStr = readFileSync(join(tempDir, 'components.ts'), 'utf-8')
@@ -32,7 +36,7 @@ const config = defineConfig({
 
       const result = ['// @ts-nocheck', '/* eslint-disable */', parametersStr, schemasStr, openapiFetcherStr, contextStr, utilsStr, componentsStr].join('\n\n');
 
-      writeFileSync('%FILENAME%', result, 'utf-8');
+      writeFileSync(%FILENAME%, result, 'utf-8');
       rmSync(tempDir, { recursive: true });
     },
   },

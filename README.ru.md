@@ -2,49 +2,62 @@
 
 [English](README.md)
 
-CLI для генерации TypeScript-клиентов и хуков TanStack Query по схемам OpenAPI и GraphQL. Сгенерированный файл самодостаточен: в него включается fetcher, используемый хуками.
+Генерация одного самодостаточного TypeScript-клиента из OpenAPI-схемы, GraphQL-схемы и операций либо сразу из обеих схем.
+
+Требуются Node.js 22 или новее и TanStack Query 5 в подключающем приложении.
 
 ## Установка
 
 ```sh
-npm install -D @kollors/react-codegen
+npm install -D @kollors/react-codegen@alpha
 ```
 
-Требуются Node.js 22 или новее и TanStack Query 5 в подключающем приложении.
+## Конфигурация
 
-## OpenAPI
+Создайте `codegen.config.js`:
 
-Можно передать локальную схему или URL:
+```js
+export default {
+  openapi: {
+    schema: './openapi.yaml',
+    output: './src/api/openapi.ts',
+  },
+  graphql: {
+    schema: './schema.graphql',
+    documents: './src/graphql',
+    output: './src/api/graphql.ts',
+  },
+};
+```
+
+Запуск:
 
 ```sh
-npx react-codegen openapi \
-  --schema ./openapi.yaml \
-  --filename src/api/generated.ts
+npx react-codegen codegen.config.js
 ```
 
-Команда поддерживает multipart-запросы, path- и query-параметры. Fetcher по умолчанию отправляет JSON и, если доступен браузерный `localStorage`, использует значение `token` для заголовка авторизации.
+Пути разрешаются относительно файла конфигурации. Наличие секции `openapi` запускает генерацию OpenAPI, наличие `graphql` — GraphQL. Отсутствующую секцию можно опустить; нужна хотя бы одна. Каждая секция создаёт один TypeScript-файл. `documents` — каталог: в нём и всех подпапках рекурсивно ищутся файлы `.graphql`.
 
-## GraphQL
+В `schema` можно передавать локальный путь или URL. Каталоги для `output` создаются автоматически.
 
-Укажите GraphQL endpoint либо локальную SDL/introspection-схему и каталог с операциями `.graphql`:
+## Программный API
 
-```sh
-npx react-codegen graphql \
-  --schema https://api.example.com/graphql \
-  --documents src/api/documents \
-  --filename src/api/generated.ts
+```ts
+import { generate, type CodegenConfig } from '@kollors/react-codegen';
+
+const config: CodegenConfig = {
+  graphql: {
+    schema: './schema.graphql',
+    documents: './src/graphql',
+    output: './src/api/graphql.ts',
+  },
+};
+
+const result = await generate(config);
+console.log(result.outputs);
 ```
 
-GraphQL fetcher по умолчанию обращается к `/api/graphql` и читает `localStorage.token`. Для другого транспорта из сгенерированного модуля можно экспортировать `createGraphqlFetcher` и передать ему endpoint, заголовки или функцию получения токена.
-
-## Команды
-
-| Команда | Обязательные параметры | Результат |
-| --- | --- | --- |
-| `openapi` | `--schema`, `--filename` | TypeScript-типы и TanStack Query hooks по OpenAPI |
-| `graphql` | `--schema`, `--documents`, `--filename` | TypeScript-типы и TanStack Query hooks по GraphQL-операциям |
-
-Полная справка доступна через `npx react-codegen <команда> --help`.
+В программном API относительные пути считаются от текущей рабочей директории. `generate` возвращает пути созданных файлов.
 
 ## Разработка
 
@@ -52,8 +65,6 @@ GraphQL fetcher по умолчанию обращается к `/api/graphql` �
 npm ci
 npm run verify
 ```
-
-`verify` запускает проверку типов, форматирование и линтер, тесты и пробную упаковку npm-пакета.
 
 ## Лицензия
 

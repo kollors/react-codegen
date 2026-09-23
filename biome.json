@@ -1,7 +1,7 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.5.14/schema.json",
   "files": {
-    "includes": ["**", "!dist"]
+    "includes": ["**", "!dist", "!.react-codegen-temp"]
   },
   "formatter": {
     "enabled": true,

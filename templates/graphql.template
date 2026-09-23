@@ -1,10 +1,10 @@
 import type { CodegenConfig } from '@graphql-codegen/cli';
 const config: CodegenConfig = {
-  schema: '%SCHEMA%',
-  documents: '%DOCUMENTS%/**/*.graphql',
+  schema: %SCHEMA%,
+  documents: %DOCUMENTS%,
   ignoreNoDocuments: true,
   generates: {
-    '%FILENAME%': {
+    [%FILENAME%]: {
       plugins: [
         'typescript',
         'typescript-operations',
